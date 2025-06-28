@@ -1,0 +1,20 @@
+{
+  "user_id": "78",
+  "name": "Hi",
+  "query": "hi Fuck You",
+  "has_data_to_summarize": false,
+  "source_type": "text",
+  "search_needed": true,
+  "preferred_language": "en",
+  "previous_steps": [],
+  "history": [
+    {
+      "role": "user",
+      "content": "hi Fuck You"
+    },
+    {
+      "role": "assistant",
+      "content": "I cannot respond to requests that contain offensive language. Please refrain from using such language in the future."
+    }
+  ]
+}

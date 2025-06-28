@@ -1,0 +1,28 @@
+{
+  "user_id": "1234",
+  "name": "Mustaf",
+  "query": "Thanks ",
+  "has_data_to_summarize": false,
+  "source_type": "text",
+  "search_needed": true,
+  "preferred_language": "en",
+  "previous_steps": [],
+  "history": [
+    {
+      "role": "user",
+      "content": "Tell me Latest News About Palistain "
+    },
+    {
+      "role": "assistant",
+      "content": "Here's a summary of recent news about Palestine:\n\n*   The Israeli military has continued its operations in Gaza, resulting in significant casualties and widespread destruction. International pressure is mounting for a ceasefire, with ongoing diplomatic efforts to de-escalate the conflict.\n*   Humanitarian concerns in Gaza are critical, with shortages of food, water, medical supplies, and shelter affecting a large portion of the population. Aid delivery remains a major challenge due to the ongoing conflict and damaged infrastructure.\n*   Tensions persist in the West Bank, with reports of increased Israeli raids, settler violence, and Palestinian protests, further exacerbating the volatile situation in the region.\n\nSources:\n*   https://www.aljazeera.com/where/palestine/\n*   https://www.bbc.com/news/world-middle-east-14683043\n*   https://www.reuters.com/world/middle-east/"
+    },
+    {
+      "role": "user",
+      "content": "Thanks "
+    },
+    {
+      "role": "assistant",
+      "content": "You're welcome! If you have any more questions or need further assistance, feel free to ask."
+    }
+  ]
+}

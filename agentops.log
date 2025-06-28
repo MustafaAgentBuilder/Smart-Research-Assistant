@@ -1,0 +1,9 @@
+2025-06-28 20:23:59,415 - INFO - [ConcurrentFuturesInstrumentor] Successfully instrumented concurrent.futures.ThreadPoolExecutor
+2025-06-28 20:23:59,415 - INFO - AgentOps: Successfully instrumented 'ConcurrentFuturesInstrumentor' for package 'python'.
+2025-06-28 20:24:00,173 - INFO - AgentOps: Successfully instrumented 'OpenaiInstrumentor' for package 'agentops.instrumentation.providers.openai'.
+2025-06-28 20:24:00,173 - INFO - AgentOps: 'agents' is the first-targeted agentic library. Will uninstrument providers if any are/become active.
+2025-06-28 20:24:00,173 - INFO - AgentOps: Uninstrumented provider: OpenaiInstrumentor (for package 'openai') due to agentic library activation.
+2025-06-28 20:24:00,224 - INFO - AgentOps: Successfully instrumented 'OpenaiInstrumentor' for package 'agentops.instrumentation.providers.openai'.
+2025-06-28 20:24:00,224 - INFO - AgentOps: Successfully instrumented 'OpenAIAgentsInstrumentor' for package 'agentops.instrumentation.agentic.openai_agents'.
+2025-06-28 20:24:00,224 - INFO - Session Replay for default trace: https://app.agentops.ai/sessions?trace_id=33b1fd3ea8a9d19562900353e4efdea7
+2025-06-28 20:25:47,808 - INFO - Session Replay for default.session trace: https://app.agentops.ai/sessions?trace_id=33b1fd3ea8a9d19562900353e4efdea7
