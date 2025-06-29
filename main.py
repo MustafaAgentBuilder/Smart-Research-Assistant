@@ -6,7 +6,6 @@ import aiofiles
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from openai.types.responses import ResponseTextDeltaEvent
 from agents.extensions import handoff_filters
 from Guardrails.Triage_guardrails import triage_agent_guardrail, triage_output_guardrail
 from Guardrails.research_guardrails import research_input_guardrail, research_output_guardrail
@@ -22,19 +21,18 @@ from agents import (
     handoff,
     set_tracing_disabled,
     ItemHelpers,
-    trace,
     InputGuardrailTripwireTriggered,
     OutputGuardrailTripwireTriggered
 )
-# from lifecycle import MyRunnerLifecycle, MyAgentLifecycle
 
-from agents import enable_verbose_stdout_logging
-
-enable_verbose_stdout_logging()
 load_dotenv()
 set_tracing_disabled(True)
 
-# 1️⃣ Setup provider & model
+
+from agents import enable_verbose_stdout_logging
+
+# enable_verbose_stdout_logging()
+# Setup provider & model
 Provider = AsyncOpenAI(
     api_key=os.getenv("GEMINI_API_KEY"),
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -43,9 +41,9 @@ model = OpenAIChatCompletionsModel(
     model="gemini-2.5-flash-lite-preview-06-17",
     openai_client=Provider,
 )
-# agentops.init('Add Your AgentOps API Key here') 
 
-# 1️⃣ Summary Agent
+# agentops.init('Add Your AgentOps API Key here') 
+# Summary Agent
 summary_Agent = Agent(
     name="Summary_Agent",
     model=model,
@@ -63,7 +61,7 @@ Be concise, factual, and omit any irrelevant info.
     input_guardrails=[summary_input_guardrail],
 )
 
-# 2️⃣ Research Agent
+# Research Agent
 research_Agent = Agent(
     name="Research_Agent",
     model=model,
@@ -80,7 +78,7 @@ research_Agent = Agent(
     ],
     instructions="""
 You are the Research Agent. Your goal is to gather raw data on the user’s topic.
-1. Step 1: Analyze the user’s request to form a precise search query.
+1. StepEn Step 1: Analyze the user’s request to form a precise search query.
 2. Step 2: CALL_TOOL search_web with that query.
 3. Step 3: Collect the results (title, url, summary) in JSON form.
 4. Step 4: Think about whether the results cover the topic.
@@ -89,33 +87,30 @@ You are the Research Agent. Your goal is to gather raw data on the user’s topi
 Make your reasoning clear and only then hand off to Summary_Agent.
 """
 )
-# 3️⃣ Triage Agent with corrected lifecycle parameter
+
+# Triage Agent
 Triage_Agent = Agent[LocalContext](
     name="Triage_Agent",
-    model=model,  # Ensure 'model' is defined elsewhere
+    model=model,
     instructions=dynamic_context_wrapper,
     handoffs=[
         handoff(
-            agent=research_Agent,  # Ensure 'research_Agent' is defined
+            agent=research_Agent,
             tool_name_override="go_research",
             tool_description_override="Fetch fresh research with Research_Agent.",
         ),
     ],
     input_guardrails=[triage_agent_guardrail],
     output_guardrails=[triage_output_guardrail],
-    hooks=MyAgentHooks(),  # Corrected to 'lifecycle'
+    hooks=MyAgentHooks(),
 )
 
-# 4️⃣ Main async loop
-
+# Main async loop
 async def save_context(context, file_path):
-    """Asynchronously save the context to a file."""
     async with aiofiles.open(file_path, "w") as f:
-        await f.write(json.dumps(context.model_dump(), indent=2))  # Use model_dump()
+        await f.write(json.dumps(context.model_dump(), indent=2))
 
 async def project():
-    """Enhanced async function for conversation management."""
-    # Prompt for user ID and ensure uniqueness
     while True:
         user_id = input("Enter your user ID: ")
         user_name = input("Enter your name: ")
@@ -126,7 +121,6 @@ async def project():
         else:
             break
 
-    # Initialize new context since file doesn't exist
     context = LocalContext(
         user_id=user_id,
         name=user_name,
@@ -138,57 +132,52 @@ async def project():
         history=[],
     )
     print(f"Created new context for user {user_id}")
-    await save_context(context, context_file)  # Save initial context
+    await save_context(context, context_file)
 
-    # Initialize lifecycle and runner
-    runner_lifecycle = MyRunHooks()
-    # runner = Runner(hooks=runner_lifecycle)
+    # runner_lifecycle = MyRunHooks()
+    # runner = Runner(hooks=runner_lifecycle)  # Instantiate Runner with hooks
 
     while True:
         q = input("Enter topic or 'exit': ")
         if q.lower() == "exit":
             break
 
-        print("=== Run starting ===")
+        # print("=== Run starting ===")
 
         try:
-            # with trace("Triage Agent run"):
-            # Update context with user query
-                context.name = user_name
-                context.query = q
-                context.has_data_to_summarize = False
-                context.source_type = "text"
-                context.search_needed = True
-                context.preferred_language = "en"
-                context.history.append({"role": "user", "content": q})
-                await save_context(context, context_file)  # Save after adding user query
+            context.name = user_name
+            context.query = q
+            context.has_data_to_summarize = False
+            context.source_type = "text"
+            context.search_needed = True
+            context.preferred_language = "en"
+            context.history.append({"role": "user", "content": q})
+            await save_context(context, context_file)
 
-            # Run the agent
-                response = Runner.run_streamed(
-                    starting_agent=Triage_Agent,
-                    input=q,
-                    context=context,
-                    hooks=runner_lifecycle,
-                )
+            response = Runner.run_streamed(
+                starting_agent=Triage_Agent,
+                input=q,
+                context=context,
+                hooks=MyRunHooks(),  # Pass hooks to Runner
+            )
 
-                # Process streamed events
-                async for event in response.stream_events():
-                    if event.type == "raw_response_event":
-                        continue
-                    elif event.type == "agent_updated_stream_event":
-                        print(f"Agent updated: {event.new_agent.name}")
-                    elif event.type == "run_item_stream_event":
-                        if event.item.type == "tool_call_item":
-                            print("-- Tool was called")
-                        elif event.item.type == "tool_call_output_item":
-                            print(f"-- Tool output: {event.item.output}")
-                        elif event.item.type == "message_output_item":
-                            message = ItemHelpers.text_message_output(event.item)
-                            print(f"-- Message output:\n {message}")
-                            context.history.append({"role": "assistant", "content": message})
-                            await save_context(context, context_file)  # Save after assistant response
-                    else:
-                        pass  # Ignore other event types
+            async for event in response.stream_events():
+                if event.type == "raw_response_event":
+                    continue
+                elif event.type == "agent_updated_stream_event":
+                    print(f"Agent updated: {event.new_agent.name}")
+                elif event.type == "run_item_stream_event":
+                    if event.item.type == "tool_call_item":
+                        print("-- Tool was called")
+                    elif event.item.type == "tool_call_output_item":
+                        print(f"-- Tool output: {event.item.output}")
+                    elif event.item.type == "message_output_item":
+                        message = ItemHelpers.text_message_output(event.item)
+                        print(f"-- Message output:\n {message}")
+                        context.history.append({"role": "assistant", "content": message})
+                        await save_context(context, context_file)
+                else:
+                    pass
 
         except InputGuardrailTripwireTriggered:
             print("Input flagged by guardrail. Please rephrase your request.\n")
@@ -199,7 +188,7 @@ async def project():
         except Exception as e:
             print(f"Error during run: {e}\n")
 
-            print("=== Run complete ===\n")
+        # print("=== Run complete ===\n")
 
 if __name__ == "__main__":
     asyncio.run(project())
