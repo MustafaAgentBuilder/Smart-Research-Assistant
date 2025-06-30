@@ -6,7 +6,7 @@ Smart Research Assistant is an AI-powered application built with the [OpenAI Age
 
 I use the design pattern of: **Prompt Chaining by Anthropic**
 
-[![Prompt Chaining Method](Prompt%20Chaning%20exa.webp)](https://your-url-here.com)
+[![Prompt Chaining Method](Prompt%20Chaning%20exa.webp)](https://www.anthropic.com/engineering/building-effective-agents)
 
 
 
