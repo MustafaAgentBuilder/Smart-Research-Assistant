@@ -4,6 +4,12 @@
 
 Smart Research Assistant is an AI-powered application built with the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) to provide a modular, extensible research pipeline. It enables users to input topics, perform web searches, summarize findings, and maintain persistent conversation history, all while leveraging advanced agent orchestration and lifecycle management. The project showcases approximately 90% of the OpenAI Agents SDK's capabilities, including agents, runners, lifecycle hooks, guardrails, handoffs, and context management.
 
+I use the design pattern of: **Prompt Chaining by Anthropic**
+
+[![Prompt Chaining Method](Prompt%20Chaning%20exa.webp)](https://your-url-here.com)
+
+
+
 ## Table of Contents
 
 - [Features](#features)
