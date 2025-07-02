@@ -88,6 +88,20 @@ Make your reasoning clear and only then hand off to Summary_Agent.
 """
 )
 
+hooks=MyAgentHooks()
+hooks.on_start
+hooks.on_end
+hooks.on_action
+hooks.on_agent_exception
+hooks.on_tool_start
+hooks.on_tool_end
+hooks.on_thought
+hooks.on_message
+hooks.on_handoff
+
+
+
+
 # Triage Agent
 Triage_Agent = Agent[LocalContext](
     name="Triage_Agent",
@@ -102,7 +116,7 @@ Triage_Agent = Agent[LocalContext](
     ],
     input_guardrails=[triage_agent_guardrail],
     output_guardrails=[triage_output_guardrail],
-    hooks=MyAgentHooks(),
+    hooks=hooks,
 )
 
 # Main async loop
@@ -154,11 +168,17 @@ async def project():
             context.history.append({"role": "user", "content": q})
             await save_context(context, context_file)
 
+            run_hook = MyRunHooks()
+            run_hook.on_run_start
+            run_hook.on_run_end
+
+
+
             response = Runner.run_streamed(
                 starting_agent=Triage_Agent,
                 input=q,
                 context=context,
-                hooks=MyRunHooks(),  # Pass hooks to Runner
+                hooks=run_hook,  # Pass hooks to Runner
             )
 
             async for event in response.stream_events():
